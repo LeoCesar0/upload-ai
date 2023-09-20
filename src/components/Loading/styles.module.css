@@ -1,0 +1,35 @@
+.loader {
+  width: 16px;
+  aspect-ratio: 1;
+  display: grid;
+}
+.loader::before,
+.loader::after {
+  content: "";
+  grid-area: 1/1;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    hsl(var(--foreground)),
+    hsl(var(--secondary)) 1deg 18deg,
+    hsl(var(--foreground)) 20deg 36deg
+  );
+  -webkit-mask: repeating-radial-gradient(
+    farthest-side,
+    hsl(var(--secondary)) 0 10%,
+    hsl(var(--foreground)) 0 20%
+  );
+  animation: l10 4s infinite linear;
+}
+.loader::after {
+  -webkit-mask: repeating-radial-gradient(
+    farthest-side,
+    hsl(var(--foreground)) 0 10%,
+    hsl(var(--secondary)) 0 20%
+  );
+  animation-direction: reverse;
+}
+@keyframes l10 {
+  100% {
+    transform: rotate(0.5turn);
+  }
+}
