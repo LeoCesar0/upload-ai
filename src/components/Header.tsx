@@ -9,7 +9,7 @@ const Header = () => {
         <h1 className="text-xl font-bold">upload.ai</h1>
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">
-            Desenvolvido com ❤ no NLW da Rocketseat
+            Desenvolvido com ❤ na NLW da Rocketseat
           </span>
 
           <Separator orientation="vertical" className="h-6" />

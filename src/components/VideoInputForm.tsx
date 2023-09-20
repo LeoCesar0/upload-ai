@@ -7,6 +7,8 @@ import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
 import { fetchFile } from "@ffmpeg/util";
 import { getFFMPEG } from "@/lib/ffmpeg";
 import { axiosAPI } from "@/lib/axios";
+import { UploadedVideo } from "@/@types";
+import { useFormStore } from "@/hooks/useFormStore";
 
 type StatusType =
   | "waiting"
@@ -25,6 +27,7 @@ const VideoInputForm = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [status, setStatus] = useState<Status>(allStatus.waiting);
   const promptInputRef = useRef<HTMLTextAreaElement>(null);
+  const { set } = useFormStore((state) => state);
 
   const onInputVideo = (event: ChangeEvent<HTMLInputElement>) => {
     const { files } = event.currentTarget;
@@ -53,16 +56,26 @@ const VideoInputForm = () => {
       setStatus(allStatus.uploading);
       const response = await axiosAPI.post("/video", formData);
 
-      console.log("response -->", response);
+      const uploadedVideo = response.data.data as UploadedVideo;
 
-      const videoId = response.data.data.id;
+      console.log("uploadedVideo -->", uploadedVideo);
+
+      const videoId = uploadedVideo.id;
       const transcriptionURL = `/video/${videoId}/transcription`;
 
       setStatus(allStatus.generating);
+
       const transcriptionResponse = await axiosAPI.post(transcriptionURL, {
         prompt,
       });
       const transcription = transcriptionResponse.data;
+
+      uploadedVideo.transcription = transcription;
+
+      set((state) => ({
+        ...state,
+        uploadedVideo,
+      }));
 
       setStatus(allStatus.success);
 
