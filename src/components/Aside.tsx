@@ -1,4 +1,4 @@
-import DetailsForm from "./DetailsForm";
+import GenerationForm from "./GenerationForm";
 import VideoInputForm from "./VideoInputForm";
 import { Separator } from "./ui/separator";
 
@@ -8,7 +8,7 @@ const Aside = () => {
       <aside className="w-80 space-y-6 ">
         <VideoInputForm />
         <Separator />
-        <DetailsForm />
+        <GenerationForm />
       </aside>
     </>
   );

@@ -3,39 +3,53 @@ import { Separator } from "./ui/separator";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
-import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { fetchFile } from "@ffmpeg/util";
 import { getFFMPEG } from "@/lib/ffmpeg";
 import { axiosAPI } from "@/lib/axios";
 import { UploadedVideo } from "@/@types";
-import { useFormStore } from "@/hooks/useFormStore";
-
-type StatusType =
-  | "waiting"
-  | "converting"
-  | "uploading"
-  | "generating"
-  | "success"
-  | "error";
-
-type Status = {
-  name: StatusType;
-  label: string;
-};
+import {
+  VideoFormStatus,
+  useFormStore,
+  videoInputFormStatus,
+} from "@/hooks/useFormStore";
 
 const VideoInputForm = () => {
-  const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<Status>(allStatus.waiting);
-  const promptInputRef = useRef<HTMLTextAreaElement>(null);
-  const { set } = useFormStore((state) => state);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const { set, videoFile, videoFormStatus, transcriptionPrompt } = useFormStore(
+    (state) => state
+  );
+
+  const setStatus = (videoFormStatus: VideoFormStatus) => {
+    set((state) => ({
+      ...state,
+      videoFormStatus: videoFormStatus,
+    }));
+  };
 
   const onInputVideo = (event: ChangeEvent<HTMLInputElement>) => {
     const { files } = event.currentTarget;
 
-    if (!files || !files[0]) return;
+    if (!files || !files[0]) {
+      set((state) => ({
+        ...state,
+        videoFile: null,
+      }));
+      return;
+    }
 
     const file = files[0];
-    setVideoFile(file);
+    set((state) => ({
+      ...state,
+      videoFile: file,
+    }));
   };
 
   const handleVideoUpload = async (event: FormEvent<HTMLFormElement>) => {
@@ -44,29 +58,25 @@ const VideoInputForm = () => {
     if (!videoFile) return;
 
     try {
-      const prompt = promptInputRef.current?.value || "";
-
-      setStatus(allStatus.converting);
+      setStatus(videoInputFormStatus.converting);
       const audioFile = await convertVideoToAudio(videoFile);
 
       const formData = new FormData();
 
       formData.append("file", audioFile);
 
-      setStatus(allStatus.uploading);
+      setStatus(videoInputFormStatus.uploading);
       const response = await axiosAPI.post("/video", formData);
 
       const uploadedVideo = response.data.data as UploadedVideo;
 
-      console.log("uploadedVideo -->", uploadedVideo);
-
       const videoId = uploadedVideo.id;
       const transcriptionURL = `/video/${videoId}/transcription`;
 
-      setStatus(allStatus.generating);
+      setStatus(videoInputFormStatus.generating);
 
       const transcriptionResponse = await axiosAPI.post(transcriptionURL, {
-        prompt,
+        prompt: transcriptionPrompt,
       });
       const transcription = transcriptionResponse.data;
 
@@ -77,13 +87,20 @@ const VideoInputForm = () => {
         uploadedVideo,
       }));
 
-      setStatus(allStatus.success);
+      setStatus(videoInputFormStatus.success);
 
       console.log("transcriptionResponse -->", transcriptionResponse);
     } catch (err) {
       console.log("Something went wrong -->", err);
-      setStatus(allStatus.error);
+      setStatus(videoInputFormStatus.error);
     }
+  };
+
+  const onInputVideoClicked = (
+    event: React.MouseEvent<HTMLInputElement, MouseEvent>
+  ) => {
+    const element = event.target as HTMLInputElement;
+    element.value = "";
   };
 
   const videoPreviewURL = useMemo(() => {
@@ -106,7 +123,7 @@ const VideoInputForm = () => {
               <video
                 src={videoPreviewURL}
                 controls={false}
-                className="pointer-events-none absolute inset-0 aspect-video object-cover rounded-md"
+                className="pointer-events-none absolute inset-0 aspect-video rounded-md object-cover"
               />
             </>
           ) : (
@@ -122,13 +139,23 @@ const VideoInputForm = () => {
           accept="video/mp4"
           id="video"
           onChange={onInputVideo}
+          ref={videoInputRef}
+          onClick={onInputVideoClicked}
         />
         <Separator />
         <div className="space-y-2">
           <Label htmlFor="transcriptionPrompt">Prompt de transcrição</Label>
           <Textarea
-            disabled={status.name !== allStatus.waiting.name}
-            ref={promptInputRef}
+            disabled={
+              videoFormStatus.name !== videoInputFormStatus.waiting.name
+            }
+            value={transcriptionPrompt}
+            onChange={(event) => {
+              set((state) => ({
+                ...state,
+                transcriptionPrompt: event.target.value,
+              }));
+            }}
             id="transcriptionPrompt"
             className="h-20 leading-relaxed p-2 resize-none"
             placeholder="Inclua palavras-chave mencionadas no vídeo separadas por vírgula (,)"
@@ -137,22 +164,25 @@ const VideoInputForm = () => {
         <Button
           type="submit"
           className="w-full"
-          disabled={!videoFile || status.name !== allStatus.waiting.name}
+          disabled={
+            !videoFile ||
+            videoFormStatus.name !== videoInputFormStatus.waiting.name
+          }
           variant={
-            status.name === allStatus.success.name
+            videoFormStatus.name === videoInputFormStatus.success.name
               ? "success"
-              : status.name === allStatus.error.name
+              : videoFormStatus.name === videoInputFormStatus.error.name
               ? "destructive"
               : "default"
           }
         >
-          {status.name === allStatus.waiting.name ? (
+          {videoFormStatus.name === videoInputFormStatus.waiting.name ? (
             <>
               Enviar vídeo
               <Upload className="w-4 h-4 ml-2" />
             </>
           ) : (
-            <>{status.label}</>
+            <>{videoFormStatus.label}</>
           )}
         </Button>
       </form>
@@ -161,35 +191,6 @@ const VideoInputForm = () => {
 };
 
 export default VideoInputForm;
-
-const allStatus: {
-  [key in StatusType]: Status;
-} = {
-  waiting: {
-    name: "waiting",
-    label: "Aguardando...",
-  },
-  converting: {
-    name: "converting",
-    label: "Convertendo Áudio...",
-  },
-  uploading: {
-    name: "uploading",
-    label: "Enviando...",
-  },
-  generating: {
-    name: "generating",
-    label: "Gerando Transcrição...",
-  },
-  success: {
-    name: "success",
-    label: "Sucesso!",
-  },
-  error: {
-    name: "error",
-    label: "Erro!",
-  },
-};
 
 const convertVideoToAudio = async (file: File) => {
   console.log("Start converting");

@@ -9,12 +9,9 @@ import {
 } from "./ui/select";
 import { axiosAPI } from "@/lib/axios";
 import { useFormStore } from "@/hooks/useFormStore";
+import { Prompt } from "@/@types";
 
-interface Prompt {
-  id: string;
-  title: string;
-  template: string;
-}
+
 
 const PromptSelect = () => {
   const { set } = useFormStore((state) => state);
@@ -25,7 +22,7 @@ const PromptSelect = () => {
 
   return (
     <>
-      <Label>Prompt</Label>
+      <Label>Prompt Template</Label>
       <Select
         onValueChange={(value) => {
           set((state) => ({

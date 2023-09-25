@@ -1,29 +1,21 @@
 import { Wand2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
 import { Separator } from "./ui/separator";
 import { Slider } from "./ui/slider";
 import PromptSelect from "./PromptSelect";
 import ModelSelect from "./ModelSelect";
 import { useFormStore } from "../hooks/useFormStore";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useCompletion } from "ai/react";
 import { API_GENERATE_URL } from "@/static/appConfig";
 
-const DetailsForm = () => {
-  const { set, model, temperature, uploadedVideo, prompt } = useFormStore(
-    (state) => state
-  );
+const GenerationForm = () => {
+  const { set, model, temperature, uploadedVideo, prompt, resetForm } =
+    useFormStore((state) => state);
   const canGenerateText = Boolean(prompt && model && uploadedVideo);
 
-  const { handleSubmit, completion, isLoading, error, setInput } =
+  const { handleSubmit, completion, isLoading, error, setInput, stop } =
     useCompletion({
       api: API_GENERATE_URL,
       body: {
@@ -35,6 +27,15 @@ const DetailsForm = () => {
         "Content-Type": "application/json",
       },
     });
+
+  const handleResetForm = () => {
+    stop();
+    resetForm();
+  };
+
+  const formFinished = useMemo(() => {
+    return !isLoading && !error && completion && prompt;
+  }, [isLoading, error, completion, prompt]);
 
   useEffect(() => {
     setInput(prompt);
@@ -87,18 +88,37 @@ const DetailsForm = () => {
           </span>
         </div>
         <Separator />
-        <Button
-          type="submit"
-          className="flex items-center gap-2 w-full"
-          disabled={!canGenerateText || isLoading}
-          isLoading={isLoading}
-        >
-          Executar
-          <Wand2 className="w-4 h-4" />
-        </Button>
+        {formFinished ? (
+          <>
+            <Button
+              type="button"
+              className="flex items-center gap-2 w-full"
+              disabled={isLoading}
+              isLoading={isLoading}
+              variant={"outline"}
+              onClick={() => {
+                handleResetForm();
+              }}
+            >
+              Reiniciar
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              type="submit"
+              className="flex items-center gap-2 w-full"
+              disabled={!canGenerateText || isLoading}
+              isLoading={isLoading}
+            >
+              Executar
+              <Wand2 className="w-4 h-4" />
+            </Button>
+          </>
+        )}
       </form>
     </>
   );
 };
 
-export default DetailsForm;
+export default GenerationForm;

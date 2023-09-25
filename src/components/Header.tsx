@@ -1,6 +1,7 @@
 import { Github } from "lucide-react";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
+import { GITHUB_LINK } from "@/static/appConfig";
 
 const Header = () => {
   return (
@@ -13,15 +14,20 @@ const Header = () => {
           </span>
 
           <Separator orientation="vertical" className="h-6" />
-          <Button variant={"outline"}>
-            <Github className="w-4 h-4 mr-2" />
-            Github
-          </Button>
+          <a
+            href={GITHUB_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant={"outline"} >
+              <Github className="w-4 h-4 mr-2" />
+              Github
+            </Button>
+          </a>
         </div>
       </header>
     </>
   );
 };
 
-
-export default Header
+export default Header;
