@@ -10,8 +10,7 @@ import {
 import { axiosAPI } from "@/lib/axios";
 import { useFormStore } from "@/hooks/useFormStore";
 import { Prompt } from "@/@types";
-
-
+import { useT } from "@/hooks/useT";
 
 const PromptSelect = () => {
   const { set } = useFormStore((state) => state);
@@ -22,7 +21,10 @@ const PromptSelect = () => {
 
   return (
     <>
-      <Label>Prompt Template</Label>
+      <Label>Prompt Template <span className="text-muted-foreground" >({useT({
+        pt: 'opcional',
+        en: "optional"
+      })})</span></Label>
       <Select
         onValueChange={(value) => {
           set((state) => ({
@@ -32,7 +34,12 @@ const PromptSelect = () => {
         }}
       >
         <SelectTrigger disabled={isLoading || !data}>
-          <SelectValue placeholder="Selecione um prompt" />
+          <SelectValue
+            placeholder={useT({
+              pt: "Selecione um template",
+              en: "Select a template",
+            })}
+          />
         </SelectTrigger>
         <SelectContent>
           {data?.map((item) => {

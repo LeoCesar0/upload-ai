@@ -1,9 +1,5 @@
-import { UploadedVideo } from "@/@types";
+import { Language, UploadedVideo } from "@/@types";
 import { create } from "zustand";
-
-type ZustandSet<T> = (
-  partial: T | Partial<T> | ((state: T) => T | Partial<T>)
-) => void;
 
 export type VideoFormStatusType =
   | "waiting"
@@ -15,7 +11,9 @@ export type VideoFormStatusType =
 
 export type VideoFormStatus = {
   name: VideoFormStatusType;
-  label: string;
+  label: {
+    [key in Language]: string;
+  };
 };
 
 export interface IFormStore {
@@ -37,27 +35,45 @@ export const videoInputFormStatus: {
 } = {
   waiting: {
     name: "waiting",
-    label: "Aguardando...",
+    label: {
+      pt: "Aguardando...",
+      en: "Waiting...",
+    },
   },
   converting: {
     name: "converting",
-    label: "Convertendo Áudio...",
+    label: {
+      pt: "Convertendo Áudio...",
+      en: "Converting Audio...",
+    },
   },
   uploading: {
     name: "uploading",
-    label: "Enviando...",
+    label: {
+      pt: "Enviando...",
+      en: "Uploading...",
+    },
   },
   generating: {
     name: "generating",
-    label: "Gerando Transcrição...",
+    label: {
+      pt: "Gerando Transcrição...",
+      en: "Generating Transcription...",
+    },
   },
   success: {
     name: "success",
-    label: "Sucesso!",
+    label: {
+      pt: "Sucesso!",
+      en: "Success!",
+    },
   },
   error: {
     name: "error",
-    label: "Erro!",
+    label: {
+      pt: "Erro!",
+      en: "Error!",
+    },
   },
 };
 

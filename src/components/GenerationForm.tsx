@@ -9,6 +9,7 @@ import { useFormStore } from "../hooks/useFormStore";
 import { useEffect, useMemo } from "react";
 import { useCompletion } from "ai/react";
 import { API_GENERATE_URL } from "@/static/appConfig";
+import { useT } from "@/hooks/useT";
 
 const GenerationForm = () => {
   const { set, model, temperature, uploadedVideo, prompt, resetForm } =
@@ -62,12 +63,15 @@ const GenerationForm = () => {
         <div className="space-y-2">
           <ModelSelect />
           <span className="block text-xs text-muted-foreground italic">
-            Você poderá customizar essa opção em breve.
+            {useT({
+              pt: "Você poderá customizar essa opção em breve.",
+              en: "You will be able to customize this option soon.",
+            })}
           </span>
         </div>
         <Separator />
         <div className="space-y-2">
-          <Label>Temperatura</Label>
+          <Label>{useT({ pt: "Temperatura", en: "Temperature" })}</Label>
           <div className="block !my-3">
             <Slider
               min={0}
@@ -83,8 +87,10 @@ const GenerationForm = () => {
             />
           </div>
           <span className="block text-xs text-muted-foreground italic">
-            Valores mais altos tendem a gerar textos mais criativos, mas com
-            possíveis erros.
+            {useT({
+              pt: "Valores mais altos tendem a gerar textos mais criativos, mas com possíveis erros.",
+              en: "Higher values tend to generate more creative texts, but with possible errors.",
+            })}
           </span>
         </div>
         <Separator />
@@ -100,7 +106,7 @@ const GenerationForm = () => {
                 handleResetForm();
               }}
             >
-              Reiniciar
+              {useT({ pt: "Reiniciar", en: "Restart" })}
             </Button>
           </>
         ) : (
@@ -111,7 +117,7 @@ const GenerationForm = () => {
               disabled={!canGenerateText || isLoading}
               isLoading={isLoading}
             >
-              Executar
+              {useT({ pt: "Executar", en: "Run" })}
               <Wand2 className="w-4 h-4" />
             </Button>
           </>

@@ -20,12 +20,15 @@ import {
   useFormStore,
   videoInputFormStatus,
 } from "@/hooks/useFormStore";
+import { useT } from "@/hooks/useT";
+import useConfig from "@/hooks/useConfig";
 
 const VideoInputForm = () => {
   const videoInputRef = useRef<HTMLInputElement>(null);
   const { set, videoFile, videoFormStatus, transcriptionPrompt } = useFormStore(
     (state) => state
   );
+  const { currentLanguage } = useConfig();
 
   const setStatus = (videoFormStatus: VideoFormStatus) => {
     set((state) => ({
@@ -129,7 +132,10 @@ const VideoInputForm = () => {
           ) : (
             <>
               <FileVideo className="w-4 h-4" />
-              Carregar video
+              {useT({
+                pt: "Carregar vídeo",
+                en: "Upload video",
+              })}
             </>
           )}
         </label>
@@ -144,7 +150,20 @@ const VideoInputForm = () => {
         />
         <Separator />
         <div className="space-y-2">
-          <Label htmlFor="transcriptionPrompt">Prompt de transcrição</Label>
+          <Label htmlFor="transcriptionPrompt">
+            {useT({
+              pt: "Prompt de transcrição",
+              en: "Transcription prompt",
+            })}{" "}
+            <span className="text-muted-foreground">
+              (
+              {useT({
+                pt: "opcional",
+                en: "optional",
+              })}
+              )
+            </span>
+          </Label>
           <Textarea
             disabled={
               videoFormStatus.name !== videoInputFormStatus.waiting.name
@@ -158,7 +177,10 @@ const VideoInputForm = () => {
             }}
             id="transcriptionPrompt"
             className="h-20 leading-relaxed p-2 resize-none"
-            placeholder="Inclua palavras-chave mencionadas no vídeo separadas por vírgula (,)"
+            placeholder={useT({
+              pt: "Inclua palavras-chave mencionadas no vídeo separadas por vírgula (,) para melhor identificação do conteúdo",
+              en: "Include keywords mentioned in the video separated by comma (,) to better identify the content",
+            })}
           />
         </div>
         <Button
@@ -178,11 +200,14 @@ const VideoInputForm = () => {
         >
           {videoFormStatus.name === videoInputFormStatus.waiting.name ? (
             <>
-              Enviar vídeo
+              {useT({
+                pt: "Enviar vídeo",
+                en: "Upload video",
+              })}
               <Upload className="w-4 h-4 ml-2" />
             </>
           ) : (
-            <>{videoFormStatus.label}</>
+            <>{videoFormStatus.label[currentLanguage]}</>
           )}
         </Button>
       </form>
