@@ -1,4 +1,4 @@
-# Video Transcription App
+# AI Video Transcription App
 
 ![SCREENSHOT](./public/screenshot.png)
 
