@@ -30,11 +30,9 @@ const LanguageSwitcher = () => {
         <SelectContent>
           {LANGUAGES.map((language) => {
             return (
-              <>
-                <SelectItem key={language} value={language}>
-                  {language.toUpperCase()}
-                </SelectItem>
-              </>
+              <SelectItem key={language} value={language}>
+                {language.toUpperCase()}
+              </SelectItem>
             );
           })}
         </SelectContent>

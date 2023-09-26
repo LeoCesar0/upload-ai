@@ -3,14 +3,7 @@ import { Separator } from "./ui/separator";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
-import {
-  ChangeEvent,
-  FormEvent,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { ChangeEvent, FormEvent, useMemo, useRef } from "react";
 import { fetchFile } from "@ffmpeg/util";
 import { getFFMPEG } from "@/lib/ffmpeg";
 import { axiosAPI } from "@/lib/axios";
@@ -114,6 +107,18 @@ const VideoInputForm = () => {
     return URL.createObjectURL(videoFile);
   }, [videoFile]);
 
+  /* ---------------------------------- TEXTS --------------------------------- */
+
+  const loadVideoText = useT({
+    pt: "Carregar vídeo",
+    en: "Upload video",
+  });
+
+  const uploadVideoText = useT({
+    pt: "Enviar vídeo",
+    en: "Upload video",
+  });
+
   return (
     <>
       <form className="space-y-6" onSubmit={handleVideoUpload}>
@@ -132,10 +137,7 @@ const VideoInputForm = () => {
           ) : (
             <>
               <FileVideo className="w-4 h-4" />
-              {useT({
-                pt: "Carregar vídeo",
-                en: "Upload video",
-              })}
+              {loadVideoText}
             </>
           )}
         </label>
@@ -200,10 +202,7 @@ const VideoInputForm = () => {
         >
           {videoFormStatus.name === videoInputFormStatus.waiting.name ? (
             <>
-              {useT({
-                pt: "Enviar vídeo",
-                en: "Upload video",
-              })}
+              {uploadVideoText}
               <Upload className="w-4 h-4 ml-2" />
             </>
           ) : (
