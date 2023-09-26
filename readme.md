@@ -35,6 +35,8 @@ The Video Transcription App is a user-friendly web application designed to simpl
 - Back-end:
   - Node.js
   - Prisma
+  - SQLite
+  - Amazon S3 (storage)
   - Fastify
   - OpenAI
   - Zod
