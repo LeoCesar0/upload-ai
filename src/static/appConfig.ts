@@ -1,6 +1,7 @@
 import { Language } from "@/@types"
 
-export const API_BASE_URL = 'http://localhost:3333'
+// export const API_BASE_URL = 'http://localhost:3333'
+export const API_BASE_URL = 'https://upload-ai-ag8s5erbg-mikemel100-hotmailcom.vercel.app'
 
 export const API_GENERATE_URL = `${API_BASE_URL}/generate`
 
